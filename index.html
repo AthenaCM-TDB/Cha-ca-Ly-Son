@@ -82,12 +82,12 @@ textarea{min-height:64px}
 <div class="muted">Chưa gồm phí ship (nếu trên 1km).</div>
 <button type="button" class="btn primary" onclick="prepareOrder()">Kiểm tra đơn hàng</button>
 <div id="orderPreview" class="recommend hidden" style="margin-top:14px">
-<b>Kiểm tra trước khi gửi</b>
+<b>Kiểm tra trước khi gửi</b><div class="muted">Chọn một cách gửi bên dưới. Messenger và Zalo sẽ tự copy đơn, bạn chỉ cần dán và gửi.</div>
 <pre id="orderText" style="white-space:pre-wrap;font:inherit;margin:10px 0"></pre>
 <button type="button" class="btn primary" style="margin-top:0" onclick="sendMessenger()">Gửi đơn qua Messenger</button>
 <div class="actions">
-<a id="zaloBtn" class="btn light hidden" target="_blank" rel="noopener">Chat Zalo</a>
-<a id="callBtn" class="btn light hidden">Gọi điện</a>
+<a id="zaloBtn" class="btn light hidden" target="_blank" rel="noopener" onclick="copyOrder()">Gửi qua Zalo</a>
+<a id="smsBtn" class="btn light hidden">Nhắn SMS (tự điền sẵn)</a><a id="callBtn" class="btn light hidden">Gọi điện</a>
 <a id="callBtn2" class="btn light hidden">Gọi số 2</a>
 </div>
 <div id="bankInfo" class="muted" style="margin-top:8px"></div>
@@ -159,26 +159,27 @@ function prepareOrder(){
   if(units===0){alert('Vui lòng chọn số kg.');return}
   if(!name||!address){alert('Vui lòng điền tên và địa chỉ nhận hàng.');return}
   if(!/^(0|\+84)\d{9}$/.test(phone)){alert('Số điện thoại chưa đúng. Ví dụ: 0912345678');return}
-  const s=solve(units),ship='Freeship trong 1km; trên 1km tính theo app, quán báo khi xác nhận';
-  orderText=[CONFIG.greeting,`Số lượng: ${kgText(units)} (${s.text})`,`Tạm tính hàng: ${money(s.cost)}`,`Ship: ${ship}`,'Thanh toán: chuyển khoản',`Tên: ${name}`,`SĐT: ${phone}`,`Địa chỉ: ${address}`].concat(note?['Ghi chú: '+note]:[]).join('\n');
+  const s=solve(units);
+  orderText=[CONFIG.greeting,`Số lượng: ${kgText(units)} (${s.text})`,`Tạm tính hàng: ${money(s.cost)}`,'Thanh toán: chuyển khoản',`Tên: ${name}`,`SĐT: ${phone}`,`Địa chỉ: ${address}`].concat(note?['Ghi chú: '+note]:[]).join('\n');
   document.getElementById('orderText').textContent=orderText;
   document.getElementById('orderPreview').classList.remove('hidden');
   const z=document.getElementById('zaloBtn'),c=document.getElementById('callBtn');
+  const sm=document.getElementById('smsBtn');if(CONFIG.phones[0]){sm.href='sms:'+CONFIG.phones[0]+'?&body='+encodeURIComponent(orderText);sm.classList.remove('hidden')}
   if(CONFIG.zalo){z.href='https://zalo.me/'+CONFIG.zalo;z.classList.remove('hidden')}
   const c2=document.getElementById('callBtn2');if(CONFIG.phones[0]){c.href='tel:'+CONFIG.phones[0];c.textContent='Gọi '+CONFIG.phones[0];c.classList.remove('hidden')}
   if(CONFIG.phones[1]){c2.href='tel:'+CONFIG.phones[1];c2.textContent='Gọi '+CONFIG.phones[1];c2.classList.remove('hidden')}
   document.getElementById('bankInfo').textContent=CONFIG.bank?'Chuyển khoản: '+CONFIG.bank:'Quán sẽ gửi số tài khoản khi xác nhận đơn.'
 }
+async function copyOrder(){
+  let ok=false;
+  try{await navigator.clipboard.writeText(orderText);ok=true}catch(e){}
+  if(!ok){const ta=document.createElement('textarea');ta.value=orderText;document.body.appendChild(ta);ta.select();try{ok=document.execCommand('copy')}catch(e){}ta.remove()}
+  document.getElementById('sendMsg').textContent=ok?'Đã copy đơn. Khi app mở ra, chạm giữ ô nhắn tin và chọn Dán, rồi bấm Gửi.':'Chưa copy được. Hãy chọn nội dung đơn ở trên, copy rồi dán vào tin nhắn.';
+  return ok;
+}
 async function sendMessenger(){
-  const msg=document.getElementById('sendMsg');let copied=false;
-  try{await navigator.clipboard.writeText(orderText);copied=true}catch(e){}
-  if(!copied){
-    const ta=document.createElement('textarea');ta.value=orderText;document.body.appendChild(ta);ta.select();
-    try{copied=document.execCommand('copy')}catch(e){}ta.remove();
-  }
-  if(!CONFIG.messenger){msg.textContent=copied?'Đã copy đơn. Hãy dán vào tin nhắn gửi quán.':'Không copy được. Hãy chọn và copy nội dung đơn ở trên.';return}
-  msg.textContent=copied?'Đã copy đơn. Dán vào Messenger để gửi.':'Chưa copy được, hãy copy nội dung đơn ở trên rồi dán vào Messenger.';
-  window.open('https://m.me/'+encodeURIComponent(CONFIG.messenger),'_blank','noopener');
+  await copyOrder();
+  if(CONFIG.messenger)window.open('https://m.me/'+encodeURIComponent(CONFIG.messenger),'_blank','noopener');
 }
 renderPrices();update();
 </script>
