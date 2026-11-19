@@ -1,0 +1,8 @@
+/* Hallmark design tokens · Chả Cá Đỏ Lý Sơn — Dì Trúc */
+:root {
+ --color-cream:#f7f2e8; --color-paper:#fffdf8; --color-ink:#203f43; --color-muted:#697a75; --color-line:#d9ddd3; --color-sea:#1f5c65; --color-sea-deep:#123c44; --color-accent:#bb4933; --color-accent-dark:#963420; --color-sand:#e9d9bf; --color-light:#e8eee9;
+ --font-display:'DM Serif Display',Georgia,serif; --font-body:'Be Vietnam Pro',system-ui,sans-serif;
+ --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px; --space-16:64px; --space-20:80px; --space-24:96px;
+ --text-xs:12px; --text-sm:14px; --text-base:16px; --text-lg:19px; --text-xl:24px; --text-2xl:34px; --text-hero:clamp(50px,7.3vw,108px);
+ --radius-sm:8px; --radius-md:16px; --radius-lg:26px; --radius-pill:100px; --rule-thin:1px; --dur-fast:160ms; --dur-mid:280ms; --ease-out:cubic-bezier(.22,1,.36,1);
+}
